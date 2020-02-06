@@ -30,7 +30,7 @@ fun makeStringReader scan str =
     in
       Option.map (fn (a, b) => (a, Substring.string b)) reader
     end
-infix && || &&> ||>
+infix && || &&> >&& ||>
 fun op && (reader1, reader2) input =
     case reader1 input of
         NONE => NONE
@@ -48,6 +48,7 @@ fun op &&> (reader, f) input =
     case reader input of
         NONE => NONE
       | SOME (result, rest) => SOME (result, f rest)
+fun op >&& (f, reader) input = reader (f input)
 fun op ||> (reader, f) base input =
     case reader input of
         NONE => SOME (base, f input)
