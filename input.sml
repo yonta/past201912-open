@@ -55,11 +55,11 @@ fun op ||> (reader, f) base input =
       | r as SOME _ => r
 fun ** reader input =
     case reader input of
-        NONE => SOME (nil, input)
-      | SOME (result1, rest1) =>
-        (case reader rest1 of
-             SOME (result2, rest2) => SOME (result1 @ result2, rest2)
-           | NONE => raise Fail "bug: reader returns NONE")
+        NONE => NONE
+      | SOME (result, rest) =>
+        case ** reader rest of
+            NONE => SOME ([result], rest)
+          | SOME (results, rest2) => SOME (result :: results, rest2)
 fun listReader nil input = SOME (nil, input)
   | listReader (reader :: readers) input =
     case reader input of
