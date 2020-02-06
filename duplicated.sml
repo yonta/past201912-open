@@ -1,37 +1,3 @@
-signature RED_BLACK_SET =
-sig
-  type set
-  val empty : set
-  val insert : int * set -> set
-  exception Duplicate of int
-end
-structure RedBlackSet : RED_BLACK_SET =
-struct
-  datatype color = R | B
-  datatype tree = E | T of color * tree * int * tree
-  type set = tree
-  exception Duplicate of int
-  val empty = E
-  fun lbalance (B,T (R,T (R,a,x,b),y,c),z,d) = T (R,T (B,a,x,b),y,T (B,c,z,d))
-    | lbalance (B,T (R,a,x,T (R,b,y,c)),z,d) = T (R,T (B,a,x,b),y,T (B,c,z,d))
-    | lbalance body = T body
-  fun rbalance (B,a,x,T (R,T (R,b,y,c),z,d)) = T (R,T (B,a,x,b),y,T (B,c,z,d))
-    | rbalance (B,a,x,T (R,b,y,T (R,c,z,d))) = T (R,T (B,a,x,b),y,T (B,c,z,d))
-    | rbalance body = T body
-  fun insert (x, s) =
-    let
-      fun ins E = T (R, E, x, E)
-        | ins (s as T (color, a, y, b)) =
-          if x < y then lbalance (color, ins a, y ,b)
-          else if y < x then rbalance (color, a, y, ins b)
-          else raise Duplicate x
-    in
-      case ins s of
-          T (_, a, y, b) => T (B, a, y, b)
-        | E => raise Fail "bug: not inserted"
-    end
-end
-
 (*
  * array-sort
  * COPYRIGHT (c) 1993 by AT&T Bell Laboratories.
