@@ -12,7 +12,7 @@ fun test f filename =
       val originalIns = TextIO.getInstream TextIO.stdIn
       val fileIns = TextIO.getInstream (TextIO.openIn (filename))
       val () = TextIO.setInstream (TextIO.stdIn, fileIns)
-      val () = f ()
+      val _ = f ()
       val () = TextIO.setInstream (TextIO.stdIn, originalIns)
     in
       (* print "\n========== end ==========\n" *)
