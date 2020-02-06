@@ -170,14 +170,21 @@ fun parse reader instream =
       val results = reader instream
     in
       case results of
-          NONE => (TextIO.inputAll TextIO.stdIn; (* flush *)
-                   raise Fail "bug: invalid input format")
-        | SOME (inputs, rest) =>
-          (TextIO.setInstream (TextIO.stdIn, rest); inputs)
+          NONE => raise Fail "bug: invalid input format"
+        | SOME (p as (inputs, rest)) => p
     end
 
 fun getDuplicated _ (SOME dupli, SOME none) _ = SOME (dupli, none)
   | getDuplicated _ _ nil = NONE
+  | getDuplicated expected (NONE, NONE) [input] =
+    (* special pattern, like [1, 2, 3, 3] *)
+    if input = expected - 1 then SOME (input, expected)
+    else if input = expected then NONE
+    else raise Fail "bug: invalid input"
+  | getDuplicated expected (SOME d, NONE) [input] =
+    if input = expected then SOME (d, expected + 1)
+    else if input = expected + 1 then SOME (d, expected)
+    else raise Fail "bug: invalid input, only duplicated"
   | getDuplicated expected (dupli, none) (input :: inputs) =
     if input = expected
     then getDuplicated (expected + 1) (dupli, none) inputs
@@ -185,7 +192,7 @@ fun getDuplicated _ (SOME dupli, SOME none) _ = SOME (dupli, none)
     then getDuplicated (expected + 2) (dupli, SOME expected) inputs
     else if input = expected - 1
     then getDuplicated expected (SOME input, none) inputs
-    else raise Fail "bug: invalid input"
+    else raise Fail "bug: not sorted input"
 fun checkDuplicated N inputs =
     let
       val array = Array.fromList inputs
@@ -200,13 +207,15 @@ fun checkDuplicated N inputs =
 
 fun main () =
     let
-      val instream = TextIO.getInstream TextIO.stdIn
+      val io = TextIO.stdIn
+      val instream = TextIO.getInstream io
       val getc = TextIO.StreamIO.input1
       val readInt = Int.scan StringCvt.DEC getc
       val skipWS = StringCvt.skipWS getc
       val intSpace = readInt &&> skipWS
-      val N = parse intSpace instream
-      val inputs = parse ( ** intSpace) instream
+      val (N, instream) = parse intSpace instream
+      val (inputs, instream) = parse ( ** intSpace) instream
+      val () = TextIO.setInstream (io, instream)
     in
       checkDuplicated N inputs
     end
