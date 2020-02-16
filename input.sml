@@ -91,26 +91,3 @@ val _ =
     in
       listReader readers
     end
-
-datatype 'a readers =
-         RInt of 'a -> (int * 'a) option
-       | RSpace of 'a -> (char * 'a) option
-fun scanHalfSpace baseReader input =
-    case baseReader input of
-        NONE => NONE
-      | r as SOME (#" ", _) => r
-      | SOME _ => NONE
-val readers : substring readers list =
-    [
-      RInt (Int.scan StringCvt.DEC Substring.getc),
-      RSpace (scanHalfSpace Substring.getc),
-      RInt (Int.scan StringCvt.DEC Substring.getc),
-      RSpace (scanHalfSpace Substring.getc),
-      RInt (Int.scan StringCvt.DEC Substring.getc),
-      RSpace (scanHalfSpace Substring.getc),
-      RInt (Int.scan StringCvt.DEC Substring.getc),
-      RSpace (scanHalfSpace Substring.getc),
-      RInt (Int.scan StringCvt.DEC Substring.getc),
-      RSpace (scanHalfSpace Substring.getc),
-      RInt (Int.scan StringCvt.DEC Substring.getc)
-    ]
