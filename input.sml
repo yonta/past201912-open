@@ -80,14 +80,15 @@ fun skipChar char reader input =
         if c = char then skipChar char reader rest else input
 fun showResult NONE = NONE
   | showResult (SOME (result, substr)) = SOME (result, Substring.string substr)
+
 (* example *)
 val _ =
     let
       val getc = Substring.getc
       val intReader = Int.scan StringCvt.DEC getc
-      val skipWS = StringCvt.skipWS getc
-      val oneInt = intReader &&> skipWS
-      val readers = [oneInt, oneInt, oneInt, oneInt, oneInt, intReader]
+      (* automaticly skip white space *)
+      val readers = [intReader, intReader, intReader,
+                     intReader, intReader, intReader]
     in
       listReader readers
     end
