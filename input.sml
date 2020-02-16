@@ -69,6 +69,15 @@ fun listReader nil input = SOME (nil, input)
         case listReader readers rest of
             NONE => NONE
           | SOME (results, rest2) => SOME (result :: results, rest2)
+fun skipOneChar char reader input =
+    case reader input of
+        NONE => input
+      | SOME(c, rest) => if c = char then rest else input
+fun skipChar char reader input =
+    case reader input of
+        NONE => input
+      | SOME(c, rest) =>
+        if c = char then skipChar char reader rest else input
 fun showResult NONE = NONE
   | showResult (SOME (result, substr)) = SOME (result, Substring.string substr)
 (* example *)
