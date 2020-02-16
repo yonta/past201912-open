@@ -12,7 +12,8 @@ fun test f filename =
       val originalIns = TextIO.getInstream TextIO.stdIn
       val fileIns = TextIO.getInstream (TextIO.openIn (filename))
       val () = TextIO.setInstream (TextIO.stdIn, fileIns)
-      val _ = f ()
+      val _ = f () handle Fail str => print ("FAIL:" ^ str)
+      val () = TextIO.closeIn TextIO.stdIn
       val () = TextIO.setInstream (TextIO.stdIn, originalIns)
     in
       (* print "\n========== end ==========\n" *)
